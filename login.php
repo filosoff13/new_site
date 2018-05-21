@@ -5,7 +5,7 @@
 $reg = 1;
 if (isset($_POST['log_in'])) {
 	//соединимся с БД
-define('DB_HOST', 'localhost');
+	define('DB_HOST', 'localhost');
 	define('DB_USER', 'root');
 	define('DB_PASSWORD', '');
 	define('DB_NAME', 'My_base');

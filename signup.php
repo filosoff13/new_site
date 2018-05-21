@@ -6,13 +6,13 @@ define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASSWORD', '');
 define('DB_NAME', 'My_base');
-$link = @ new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-if ($link->connect_errno) {
-    exit('Error');
+try {$pdo = new PDO('mysql:host='.DB_HOST.';dbname='.DB_NAME, DB_USER, DB_PASSWORD);
+	
+} catch (Exception $e) {
+exit('Ошибка соединения с БД');
 }
-$link->set_charset('utf-8');
 
-if (!$link) {
+/*if (!$link) {
     echo "Ошибка: Невозможно установить соединение с MySQL." . PHP_EOL;
     echo "Код ошибки errno: " . mysqli_connect_errno() . PHP_EOL;
     echo "Текст ошибки error: " . mysqli_connect_error() . PHP_EOL;
@@ -43,15 +43,18 @@ if (isset($_POST['registrated'])) {
 	if ($password_2!=$password) {
 		$err[] = 'Повторный пароль введен не верно!';
 	}
-	if (!Captcha::check($_POST['captcha'])){
+	/*if (!Captcha::check($_POST['captcha'])){
 		$err[] = 'Проверочный код введён неверно!';
-	}
+	}*/
 	if (empty($err)) {
 		//нет ошибок, регистрируем		
 		//шифрование
 		$password = crypt("$password", 'rl');
 		//$password = password_hash($password, PASSWORD_DEFAULT);
-		if(mysqli_real_query($link, ("INSERT INTO users VALUES('', '$login', '$email', '$password')"))) {echo '<br/>Вы успешно зарегистрированы!';
+		/*if(mysqli_real_query($pdo, ("INSERT INTO users VALUES('', '$login', '$email', '$password')")))*/
+		$query = "INSERT INTO users VALUES('', '$login', '$email', '$password')";
+		$query = $pdo->prepare($query);
+		if ($query->execute()) {echo '<br/>Вы успешно зарегистрированы!';
 			$reg = 2;}
 	} else {
 		echo '<div style="color: red;">'.array_shift($err).'</div><hr>';
@@ -59,7 +62,7 @@ if (isset($_POST['registrated'])) {
 	}
 	
 }
-$link->close();
+//$pdo->close();
 if ($reg === 1) {
 ?>
 <form action="/signup.php" method="POST">
@@ -80,11 +83,7 @@ if ($reg === 1) {
 		<input type="password" name="password_2" value="<?=@$_POST['password_2']?>"/>
 	</p>
 	<p>
-		<p><stpong>Введите символы</stpong>:</p>
-		<input type="text" name="captcha" />
-	</p>
-	<p>
-		<img src='captcha.php' alt='Капча' />
+		<p><stpong>Капча на гите</stpong></p>
 	</p>
 	<p>
 		<button type="submit" name="registrated">Зарегистрироваться</button>
